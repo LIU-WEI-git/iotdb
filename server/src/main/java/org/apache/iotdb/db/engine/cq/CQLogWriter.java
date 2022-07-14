@@ -19,10 +19,10 @@
 package org.apache.iotdb.db.engine.cq;
 
 import org.apache.iotdb.commons.file.SystemFileFactory;
+import org.apache.iotdb.db.utils.writelog.LogWriter;
 import org.apache.iotdb.db.conf.IoTDBDescriptor;
 import org.apache.iotdb.db.qp.physical.sys.CreateContinuousQueryPlan;
 import org.apache.iotdb.db.qp.physical.sys.DropContinuousQueryPlan;
-import org.apache.iotdb.db.utils.writelog.LogWriter;
 
 import java.io.File;
 import java.io.IOException;

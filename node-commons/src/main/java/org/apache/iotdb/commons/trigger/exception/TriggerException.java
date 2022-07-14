@@ -17,16 +17,17 @@
  * under the License.
  */
 
-package org.apache.iotdb.db.exception;
+package org.apache.iotdb.commons.trigger.exception;
 
-public class TriggerManagementException extends StorageEngineException {
+import org.apache.iotdb.commons.exception.IoTDBException;
+import org.apache.iotdb.rpc.TSStatusCode;
 
-  public TriggerManagementException(String message, Throwable cause) {
-    super(message);
-    this.initCause(cause);
+public class TriggerException extends IoTDBException {
+  public TriggerException(String message) {
+    super(message, TSStatusCode.STORAGE_ENGINE_ERROR.getStatusCode());
   }
 
-  public TriggerManagementException(String message) {
-    super(message);
+  public TriggerException(String message, Throwable cause) {
+    super(message, cause, TSStatusCode.STORAGE_ENGINE_ERROR.getStatusCode());
   }
 }

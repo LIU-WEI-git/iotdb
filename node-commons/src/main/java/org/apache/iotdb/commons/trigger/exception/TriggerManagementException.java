@@ -17,16 +17,15 @@
  * under the License.
  */
 
-package org.apache.iotdb.db.exception;
+package org.apache.iotdb.commons.trigger.exception;
 
-public class TriggerExecutionException extends StorageEngineException {
-
-  public TriggerExecutionException(String message, Throwable cause) {
+public class TriggerManagementException extends TriggerException {
+  public TriggerManagementException(String message) {
     super(message);
-    this.initCause(cause);
   }
 
-  public TriggerExecutionException(String message) {
-    super(message);
+  public TriggerManagementException(String message, Throwable cause) {
+    super(message, cause);
+    this.initCause(cause);
   }
 }

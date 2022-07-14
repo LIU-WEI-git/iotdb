@@ -21,6 +21,8 @@ package org.apache.iotdb.db.metadata.idtable;
 
 import org.apache.iotdb.commons.exception.MetadataException;
 import org.apache.iotdb.commons.path.PartialPath;
+import org.apache.iotdb.commons.trigger.exception.TriggerExecutionException;
+import org.apache.iotdb.commons.trigger.exception.TriggerManagementException;
 import org.apache.iotdb.db.conf.IoTDBDescriptor;
 import org.apache.iotdb.db.engine.trigger.service.TriggerRegistrationService;
 import org.apache.iotdb.db.exception.StorageEngineException;
@@ -590,7 +592,10 @@ public class IDTableTest {
 
       idTable.getSeriesSchemas(insertRowPlan);
       assertNull(s1Node.getTriggerExecutor());
-    } catch (MetadataException | StorageEngineException | QueryProcessException e) {
+    } catch (MetadataException
+        | TriggerManagementException
+        | TriggerExecutionException
+        | QueryProcessException e) {
       e.printStackTrace();
       fail("throw exception");
     }
