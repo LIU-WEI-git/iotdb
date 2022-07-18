@@ -251,6 +251,16 @@ struct TDropFunctionReq {
   1: required string udfName
 }
 
+// Trigger
+struct TCreateTriggerReq {
+  1: required string triggerName
+  2: required byte event
+  3: required string path
+  4: required string className
+  5: required map<string, string> attributes
+  6: required list<string> uris
+}
+
 // show regions
 struct TShowRegionReq {
   1: optional common.TConsensusGroupType consensusGroupType;
@@ -393,6 +403,10 @@ service IConfigNodeRPCService {
   common.TSStatus createFunction(TCreateFunctionReq req)
 
   common.TSStatus dropFunction(TDropFunctionReq req)
+
+  /* Trigger */
+
+  common.TSStatus createTrigger(TCreateTriggerReq req)
 
   /* Flush */
 

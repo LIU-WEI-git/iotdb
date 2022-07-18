@@ -170,6 +170,15 @@ struct TDropFunctionRequest {
   1: required string udfName
 }
 
+struct TCreateTriggerRequest {
+  1: required string triggerName
+  2: required byte event
+  3: required string fullPath
+  4: required string className
+  5: required map<string, string> attributes
+  6: required list<string> uris
+}
+
 struct TInvalidatePermissionCacheReq {
   1: required string username
   2: required string roleName
@@ -312,6 +321,13 @@ service IDataNodeRPCService {
    * @param function name
    **/
   common.TSStatus dropFunction(TDropFunctionRequest req)
+
+  /**
+   * ConfigNode will create a trigger on a list of DataNodes.
+   *
+   * @param trigger name, trigger class name and executable uri
+   **/
+  common.TSStatus createTrigger(TCreateTriggerRequest req)
 
   /**
    * Config node will invalidate permission Info cache.

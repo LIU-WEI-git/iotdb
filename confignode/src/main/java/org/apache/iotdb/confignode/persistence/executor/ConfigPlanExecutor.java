@@ -62,6 +62,7 @@ import org.apache.iotdb.confignode.persistence.AuthorInfo;
 import org.apache.iotdb.confignode.persistence.ClusterSchemaInfo;
 import org.apache.iotdb.confignode.persistence.NodeInfo;
 import org.apache.iotdb.confignode.persistence.ProcedureInfo;
+import org.apache.iotdb.confignode.persistence.TriggerInfo;
 import org.apache.iotdb.confignode.persistence.UDFInfo;
 import org.apache.iotdb.confignode.persistence.partition.PartitionInfo;
 import org.apache.iotdb.confignode.rpc.thrift.TShowRegionReq;
@@ -99,19 +100,23 @@ public class ConfigPlanExecutor {
 
   private final UDFInfo udfInfo;
 
+  private final TriggerInfo triggerInfo;
+
   public ConfigPlanExecutor(
       NodeInfo nodeInfo,
       ClusterSchemaInfo clusterSchemaInfo,
       PartitionInfo partitionInfo,
       AuthorInfo authorInfo,
       ProcedureInfo procedureInfo,
-      UDFInfo udfInfo) {
+      UDFInfo udfInfo,
+      TriggerInfo triggerInfo) {
     this.nodeInfo = nodeInfo;
     this.clusterSchemaInfo = clusterSchemaInfo;
     this.partitionInfo = partitionInfo;
     this.authorInfo = authorInfo;
     this.procedureInfo = procedureInfo;
     this.udfInfo = udfInfo;
+    this.triggerInfo = triggerInfo;
   }
 
   public DataSet executeQueryPlan(ConfigPhysicalPlan req)
@@ -215,6 +220,12 @@ public class ConfigPlanExecutor {
         return udfInfo.createFunction((CreateFunctionPlan) req);
       case DropFunction:
         return udfInfo.dropFunction((DropFunctionPlan) req);
+      case CreateTrigger:
+        // TODO
+      case DropTrigger:
+      case StartTrigger:
+      case StopTrigger:
+        return null;
       case CreateSchemaTemplate:
         return clusterSchemaInfo.createSchemaTemplate((CreateSchemaTemplatePlan) req);
       case UpdateRegionLocation:

@@ -27,6 +27,7 @@ import org.apache.iotdb.commons.path.PartialPath;
 import org.apache.iotdb.commons.udf.service.UDFExecutableManager;
 import org.apache.iotdb.commons.udf.service.UDFRegistrationService;
 import org.apache.iotdb.confignode.rpc.thrift.TStorageGroupSchema;
+import org.apache.iotdb.db.engine.trigger.service.TriggerRegistrationService;
 import org.apache.iotdb.db.localconfignode.LocalConfigNode;
 import org.apache.iotdb.db.metadata.mnode.IStorageGroupMNode;
 import org.apache.iotdb.db.mpp.plan.execution.config.ConfigTaskResult;
@@ -200,6 +201,32 @@ public class StandaloneConfigTaskExecutor implements IConfigTaskExecutor {
     } catch (Exception e) {
       final String message =
           String.format("Failed to drop function %s, because %s.", udfName, e.getMessage());
+      LOGGER.error(message, e);
+      future.setException(
+          new StatementExecutionException(
+              new TSStatus(TSStatusCode.EXECUTE_STATEMENT_ERROR.getStatusCode())
+                  .setMessage(message)));
+    }
+    return future;
+  }
+
+  @Override
+  public SettableFuture<ConfigTaskResult> createTrigger(
+      String triggerName,
+      byte event,
+      String fullPath,
+      String className,
+      Map<String, String> attributes,
+      List<String> uris) {
+    SettableFuture<ConfigTaskResult> future = SettableFuture.create();
+    try {
+      TriggerRegistrationService.getInstance()
+          .register(triggerName, event, fullPath, className, attributes, uris);
+    } catch (Exception e) {
+      final String message =
+          String.format(
+              "Failed to create trigger %s(%s), URI: %s, because %s.",
+              triggerName, className, uris, e.getMessage());
       LOGGER.error(message, e);
       future.setException(
           new StatementExecutionException(

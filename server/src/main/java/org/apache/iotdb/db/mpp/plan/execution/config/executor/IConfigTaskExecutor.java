@@ -38,6 +38,7 @@ import org.apache.iotdb.db.mpp.plan.statement.metadata.template.ShowSchemaTempla
 import com.google.common.util.concurrent.SettableFuture;
 
 import java.util.List;
+import java.util.Map;
 
 public interface IConfigTaskExecutor {
 
@@ -57,6 +58,14 @@ public interface IConfigTaskExecutor {
       DeleteStorageGroupStatement deleteStorageGroupStatement);
 
   SettableFuture<ConfigTaskResult> dropFunction(String udfName);
+
+  SettableFuture<ConfigTaskResult> createTrigger(
+      String triggerName,
+      byte event,
+      String fullPath,
+      String className,
+      Map<String, String> attributes,
+      List<String> uris);
 
   SettableFuture<ConfigTaskResult> setTTL(SetTTLStatement setTTLStatement, String taskName);
 

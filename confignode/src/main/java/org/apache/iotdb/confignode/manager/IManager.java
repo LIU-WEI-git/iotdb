@@ -53,6 +53,7 @@ import org.apache.iotdb.consensus.common.DataSet;
 import org.apache.iotdb.db.mpp.common.schematree.PathPatternTree;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * a subset of services provided by {@ConfigManager}. For use internally only, passed to Managers,
@@ -265,6 +266,14 @@ public interface IManager {
   TSStatus createFunction(String udfName, String className, List<String> uris);
 
   TSStatus dropFunction(String udfName);
+
+  TSStatus createTrigger(
+      String triggerName,
+      byte event,
+      String fullPath,
+      String className,
+      Map<String, String> attributes,
+      List<String> uris);
 
   TSStatus flush(TFlushReq req);
 

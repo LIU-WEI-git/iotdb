@@ -24,6 +24,7 @@ import org.apache.iotdb.db.mpp.plan.statement.StatementNode;
 import org.apache.iotdb.db.mpp.plan.statement.StatementVisitor;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.CountStorageGroupStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.CreateFunctionStatement;
+import org.apache.iotdb.db.mpp.plan.statement.metadata.CreateTriggerStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.DeleteStorageGroupStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.DropFunctionStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.SetStorageGroupStatement;
@@ -128,6 +129,12 @@ public class ConfigTaskVisitor
   public IConfigTask visitShowFunctions(
       ShowFunctionsStatement showFunctionsStatement, TaskContext context) {
     return new ShowFunctionsTask();
+  }
+
+  @Override
+  public IConfigTask visitCreateTrigger(
+      CreateTriggerStatement createTriggerStatement, TaskContext context) {
+    return new CreateTriggerTask(createTriggerStatement);
   }
 
   @Override

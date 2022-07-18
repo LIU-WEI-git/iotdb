@@ -19,6 +19,7 @@
 
 package org.apache.iotdb.db.engine.trigger.service;
 
+import org.apache.iotdb.commons.exception.IllegalPathException;
 import org.apache.iotdb.commons.exception.MetadataException;
 import org.apache.iotdb.commons.exception.StartupException;
 import org.apache.iotdb.commons.file.SystemFileFactory;
@@ -29,6 +30,7 @@ import org.apache.iotdb.commons.utils.TestOnly;
 import org.apache.iotdb.db.conf.IoTDBConfig;
 import org.apache.iotdb.db.conf.IoTDBDescriptor;
 import org.apache.iotdb.db.engine.trigger.api.Trigger;
+import org.apache.iotdb.db.engine.trigger.executor.TriggerEvent;
 import org.apache.iotdb.db.engine.trigger.executor.TriggerExecutor;
 import org.apache.iotdb.db.exception.TriggerExecutionException;
 import org.apache.iotdb.db.exception.TriggerManagementException;
@@ -58,6 +60,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -96,6 +99,28 @@ public class TriggerRegistrationService implements IService {
 
   public synchronized void register(CreateTriggerPlan plan)
       throws TriggerManagementException, TriggerExecutionException {
+    IMNode imNode = tryGetMNode(plan);
+    checkIfRegistered(plan, imNode);
+    tryAppendRegistrationLog(plan);
+    doRegister(plan, imNode);
+  }
+
+  public synchronized void register(
+      String triggerName,
+      byte event,
+      String fullPath,
+      String className,
+      Map<String, String> attributes,
+      List<String> uris)
+      throws TriggerManagementException, TriggerExecutionException, IllegalPathException {
+    CreateTriggerPlan plan =
+        new CreateTriggerPlan(
+            triggerName,
+            TriggerEvent.construct(event),
+            new PartialPath(fullPath),
+            className,
+            attributes);
+    // TODO deal with uris
     IMNode imNode = tryGetMNode(plan);
     checkIfRegistered(plan, imNode);
     tryAppendRegistrationLog(plan);

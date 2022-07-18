@@ -25,6 +25,7 @@ import org.apache.iotdb.commons.exception.IllegalPathException;
 import org.apache.iotdb.commons.path.PartialPath;
 import org.apache.iotdb.db.conf.IoTDBConfig;
 import org.apache.iotdb.db.conf.IoTDBDescriptor;
+import org.apache.iotdb.db.engine.trigger.executor.TriggerEvent;
 import org.apache.iotdb.db.exception.sql.SQLParserException;
 import org.apache.iotdb.db.exception.sql.SemanticException;
 import org.apache.iotdb.db.mpp.common.filter.BasicFunctionFilter;
@@ -86,6 +87,7 @@ import org.apache.iotdb.db.mpp.plan.statement.metadata.CountTimeSeriesStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.CreateAlignedTimeSeriesStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.CreateFunctionStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.CreateTimeSeriesStatement;
+import org.apache.iotdb.db.mpp.plan.statement.metadata.CreateTriggerStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.DeleteStorageGroupStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.DeleteTimeSeriesStatement;
 import org.apache.iotdb.db.mpp.plan.statement.metadata.DropFunctionStatement;
@@ -664,6 +666,27 @@ public class ASTVisitor extends IoTDBSqlParserBaseVisitor<Statement> {
   @Override
   public Statement visitShowFunctions(ShowFunctionsContext ctx) {
     return new ShowFunctionsStatement();
+  }
+
+  public Statement visitCreateTrigger(IoTDBSqlParser.CreateTriggerContext ctx) {
+    String triggerName = parseIdentifier(ctx.triggerName.getText());
+    TriggerEvent event =
+        ctx.triggerEventClause().BEFORE() != null
+            ? TriggerEvent.BEFORE_INSERT
+            : TriggerEvent.AFTER_INSERT;
+    PartialPath fullPath = parseFullPath(ctx.fullPath());
+    String className = parseStringLiteral(ctx.className.getText());
+    Map<String, String> attributes = new HashMap<>();
+    if (ctx.triggerAttributeClause() != null) {
+      for (IoTDBSqlParser.TriggerAttributeContext triggerAttributeContext :
+          ctx.triggerAttributeClause().triggerAttribute()) {
+        attributes.put(
+            parseAttributeKey(triggerAttributeContext.key),
+            parseAttributeValue(triggerAttributeContext.value));
+      }
+    }
+    List<URI> uris = parseUris(ctx.uri());
+    return new CreateTriggerStatement(triggerName, event, fullPath, className, attributes, uris);
   }
 
   // Show Child Paths =====================================================================

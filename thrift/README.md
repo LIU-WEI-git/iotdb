@@ -19,4 +19,4 @@
 
 -->
 
-This modules maintains all RPC interfaces between clients and the server.
+This module maintains all RPC interfaces between clients and the server.
