@@ -722,6 +722,11 @@ public class ConfigNodeClient
   }
 
   @Override
+  public TSStatus removeConsensusGroup(TConfigNodeLocation configNodeLocation) throws TException {
+    throw new TException("DataNode to ConfigNode client doesn't support removeConsensusGroup.");
+  }
+
+  @Override
   public TSStatus stopConfigNode(TConfigNodeLocation configNodeLocation) throws TException {
     throw new TException("DataNode to ConfigNode client doesn't support stopConfigNode.");
   }
