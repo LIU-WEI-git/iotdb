@@ -33,11 +33,13 @@ import org.apache.iotdb.confignode.client.async.handlers.DataNodeHeartbeatHandle
 import org.apache.iotdb.confignode.client.async.handlers.FlushHandler;
 import org.apache.iotdb.confignode.client.async.handlers.FunctionManagementHandler;
 import org.apache.iotdb.confignode.client.async.handlers.SetTTLHandler;
+import org.apache.iotdb.confignode.client.async.handlers.TriggerManagementHandler;
 import org.apache.iotdb.confignode.client.async.handlers.UpdateRegionRouteMapHandler;
 import org.apache.iotdb.confignode.consensus.request.write.CreateRegionGroupsPlan;
 import org.apache.iotdb.mpp.rpc.thrift.TCreateDataRegionReq;
 import org.apache.iotdb.mpp.rpc.thrift.TCreateFunctionRequest;
 import org.apache.iotdb.mpp.rpc.thrift.TCreateSchemaRegionReq;
+import org.apache.iotdb.mpp.rpc.thrift.TCreateTriggerRequest;
 import org.apache.iotdb.mpp.rpc.thrift.TDropFunctionRequest;
 import org.apache.iotdb.mpp.rpc.thrift.THeartbeatReq;
 import org.apache.iotdb.mpp.rpc.thrift.TRegionRouteReq;
@@ -139,6 +141,13 @@ public class AsyncDataNodeClientPool {
           break;
         case DROP_FUNCTION:
           client.dropFunction((TDropFunctionRequest) req, (FunctionManagementHandler) handler);
+          break;
+        case CREATE_TRIGGER:
+          client.createTrigger((TCreateTriggerRequest) req, (TriggerManagementHandler) handler);
+        case DROP_TRIGGER:
+        case START_TRIGGER:
+        case STOP_TRIGGER:
+          // TODO
           break;
         case FLUSH:
           client.flush((TFlushReq) req, (FlushHandler) handler);

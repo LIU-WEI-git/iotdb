@@ -38,6 +38,7 @@ import org.apache.iotdb.confignode.consensus.request.write.CreateFunctionPlan;
 import org.apache.iotdb.confignode.consensus.request.write.CreateRegionGroupsPlan;
 import org.apache.iotdb.confignode.consensus.request.write.CreateSchemaPartitionPlan;
 import org.apache.iotdb.confignode.consensus.request.write.CreateSchemaTemplatePlan;
+import org.apache.iotdb.confignode.consensus.request.write.CreateTriggerPlan;
 import org.apache.iotdb.confignode.consensus.request.write.DeleteProcedurePlan;
 import org.apache.iotdb.confignode.consensus.request.write.DeleteRegionsPlan;
 import org.apache.iotdb.confignode.consensus.request.write.DeleteStorageGroupPlan;
@@ -203,6 +204,15 @@ public abstract class ConfigPhysicalPlan implements IConsensusRequest {
           break;
         case DropFunction:
           req = new DropFunctionPlan();
+          break;
+        case CreateTrigger:
+          req = new CreateTriggerPlan();
+          break;
+        case DropTrigger:
+        case StartTrigger:
+        case StopTrigger:
+          // TODO
+          req = null;
           break;
         case CreateSchemaTemplate:
           req = new CreateSchemaTemplatePlan();

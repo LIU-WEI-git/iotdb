@@ -25,6 +25,7 @@ import org.apache.iotdb.commons.exception.BadNodeUrlException;
 import org.apache.iotdb.commons.exception.StartupException;
 import org.apache.iotdb.commons.service.JMXService;
 import org.apache.iotdb.commons.service.RegisterManager;
+import org.apache.iotdb.commons.trigger.service.TriggerExecutableManager;
 import org.apache.iotdb.commons.udf.service.UDFClassLoaderManager;
 import org.apache.iotdb.commons.udf.service.UDFExecutableManager;
 import org.apache.iotdb.commons.udf.service.UDFRegistrationService;
@@ -41,6 +42,7 @@ import org.apache.iotdb.confignode.rpc.thrift.TConfigNodeRegisterReq;
 import org.apache.iotdb.confignode.rpc.thrift.TConfigNodeRegisterResp;
 import org.apache.iotdb.confignode.service.thrift.ConfigNodeRPCService;
 import org.apache.iotdb.confignode.service.thrift.ConfigNodeRPCServiceProcessor;
+import org.apache.iotdb.db.engine.trigger.service.TriggerRegistrationService;
 import org.apache.iotdb.db.service.metrics.MetricsService;
 import org.apache.iotdb.rpc.TSStatusCode;
 
@@ -158,6 +160,13 @@ public class ConfigNode implements ConfigNodeMBean {
         UDFExecutableManager.setupAndGetInstance(conf.getTemporaryLibDir(), conf.getUdfLibDir()));
     registerManager.register(UDFClassLoaderManager.setupAndGetInstance(conf.getUdfLibDir()));
     registerManager.register(UDFRegistrationService.setupAndGetInstance(conf.getSystemUdfDir()));
+
+    // Setup TriggerService
+    registerManager.register(
+        TriggerExecutableManager.setupAndGetInstance(
+            conf.getTemporaryLibDir(), conf.getTriggerLibDir()));
+    // TODO refactor TriggerRegistrationService
+    registerManager.register(TriggerRegistrationService.getInstance());
 
     // Setup MetricsService
     registerManager.register(MetricsService.getInstance());

@@ -19,15 +19,30 @@
 
 package org.apache.iotdb.confignode.manager;
 
+import org.apache.iotdb.common.rpc.thrift.TDataNodeConfiguration;
+import org.apache.iotdb.common.rpc.thrift.TDataNodeLocation;
 import org.apache.iotdb.common.rpc.thrift.TSStatus;
+import org.apache.iotdb.confignode.client.DataNodeRequestType;
+import org.apache.iotdb.confignode.client.async.datanode.AsyncDataNodeClientPool;
+import org.apache.iotdb.confignode.client.async.handlers.AbstractRetryHandler;
+import org.apache.iotdb.confignode.client.async.handlers.TriggerManagementHandler;
+import org.apache.iotdb.confignode.consensus.request.write.CreateTriggerPlan;
 import org.apache.iotdb.confignode.persistence.TriggerInfo;
+import org.apache.iotdb.mpp.rpc.thrift.TCreateTriggerRequest;
+import org.apache.iotdb.rpc.RpcUtils;
 import org.apache.iotdb.rpc.TSStatusCode;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TriggerManager {
   private static final Logger LOGGER = LoggerFactory.getLogger(TriggerManager.class);
@@ -47,7 +62,63 @@ public class TriggerManager {
       String className,
       Map<String, String> attributes,
       List<String> uris) {
-    // TODO
-    return new TSStatus(TSStatusCode.SUCCESS_STATUS.getStatusCode());
+    try {
+      triggerInfo.validateBeforeRegistration(
+          triggerName, event, fullPath, className, attributes, uris);
+
+      final TSStatus configNodeStatus =
+          configManager
+              .getConsensusManager()
+              .write(
+                  new CreateTriggerPlan(triggerName, event, fullPath, className, attributes, uris))
+              .getStatus();
+      if (TSStatusCode.SUCCESS_STATUS.getStatusCode() != configNodeStatus.getCode()) {
+        return configNodeStatus;
+      }
+      return RpcUtils.squashResponseStatusList(
+          createTriggerOnDataNode(triggerName, event, fullPath, className, attributes, uris));
+    } catch (Exception e) {
+      final String errorMessage =
+          String.format(
+              "Failed to register Trigger %s(class name: %s, uris: %s), because of exception: %s",
+              triggerName, className, uris, e);
+      LOGGER.warn(errorMessage, e);
+      return new TSStatus(TSStatusCode.EXECUTE_STATEMENT_ERROR.getStatusCode())
+          .setMessage(errorMessage);
+    }
+  }
+
+  private List<TSStatus> createTriggerOnDataNode(
+      String triggerName,
+      byte event,
+      String fullPath,
+      String className,
+      Map<String, String> attributes,
+      List<String> uris) {
+    final List<TDataNodeConfiguration> registeredDataNodes =
+        configManager.getNodeManager().getRegisteredDataNodes(-1);
+    final List<TSStatus> dataNodeResponseStatus =
+        Collections.synchronizedList(new ArrayList<>(registeredDataNodes.size()));
+    final CountDownLatch countDownLatch = new CountDownLatch(registeredDataNodes.size());
+    final TCreateTriggerRequest request =
+        new TCreateTriggerRequest(triggerName, event, fullPath, className, attributes, uris);
+    Map<Integer, AbstractRetryHandler> handlerMap = new HashMap<>();
+    Map<Integer, TDataNodeLocation> dataNodeLocations = new ConcurrentHashMap<>();
+    AtomicInteger index = new AtomicInteger(0);
+    for (TDataNodeConfiguration dataNodeInfo : registeredDataNodes) {
+      handlerMap.put(
+          index.get(),
+          new TriggerManagementHandler(
+              countDownLatch,
+              dataNodeInfo.getLocation(),
+              dataNodeResponseStatus,
+              DataNodeRequestType.CREATE_TRIGGER,
+              dataNodeLocations,
+              index.get()));
+      dataNodeLocations.put(index.getAndIncrement(), dataNodeInfo.getLocation());
+    }
+    AsyncDataNodeClientPool.getInstance()
+        .sendAsyncRequestToDataNodeWithRetry(request, handlerMap, dataNodeLocations);
+    return dataNodeResponseStatus;
   }
 }

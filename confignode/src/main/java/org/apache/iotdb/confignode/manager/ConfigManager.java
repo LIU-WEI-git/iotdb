@@ -885,6 +885,11 @@ public class ConfigManager implements IManager {
   }
 
   @Override
+  public TriggerManager getTriggerManager() {
+    return triggerManager;
+  }
+
+  @Override
   public DataNodeRemoveManager getDataNodeRemoveManager() {
     return dataNodeRemoveManager;
   }

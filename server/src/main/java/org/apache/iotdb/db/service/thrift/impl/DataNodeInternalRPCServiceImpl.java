@@ -33,6 +33,7 @@ import org.apache.iotdb.commons.consensus.SchemaRegionId;
 import org.apache.iotdb.commons.exception.IllegalPathException;
 import org.apache.iotdb.commons.exception.MetadataException;
 import org.apache.iotdb.commons.path.PartialPath;
+import org.apache.iotdb.commons.trigger.service.TriggerExecutableManager;
 import org.apache.iotdb.commons.udf.service.UDFExecutableManager;
 import org.apache.iotdb.commons.udf.service.UDFRegistrationService;
 import org.apache.iotdb.consensus.common.Peer;
@@ -597,7 +598,8 @@ public class DataNodeInternalRPCServiceImpl implements IDataNodeRPCService.Iface
               req.getFullPath(),
               req.getClassName(),
               req.getAttributes(),
-              req.uris);
+              req.uris,
+              TriggerExecutableManager.getInstance());
       return new TSStatus(TSStatusCode.SUCCESS_STATUS.getStatusCode());
     } catch (Exception e) {
       return new TSStatus(TSStatusCode.EXECUTE_STATEMENT_ERROR.getStatusCode())

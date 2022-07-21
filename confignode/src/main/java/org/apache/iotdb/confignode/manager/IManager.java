@@ -111,6 +111,13 @@ public interface IManager {
   UDFManager getUDFManager();
 
   /**
+   * Get TriggerManager
+   *
+   * @return TriggerManager instance
+   */
+  TriggerManager getTriggerManager();
+
+  /**
    * Get DataNodeRemoveManager
    *
    * @return DataNodeRemoveManager instance

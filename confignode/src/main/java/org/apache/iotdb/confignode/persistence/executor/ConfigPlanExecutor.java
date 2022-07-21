@@ -41,6 +41,7 @@ import org.apache.iotdb.confignode.consensus.request.write.CreateFunctionPlan;
 import org.apache.iotdb.confignode.consensus.request.write.CreateRegionGroupsPlan;
 import org.apache.iotdb.confignode.consensus.request.write.CreateSchemaPartitionPlan;
 import org.apache.iotdb.confignode.consensus.request.write.CreateSchemaTemplatePlan;
+import org.apache.iotdb.confignode.consensus.request.write.CreateTriggerPlan;
 import org.apache.iotdb.confignode.consensus.request.write.DeleteProcedurePlan;
 import org.apache.iotdb.confignode.consensus.request.write.DeleteStorageGroupPlan;
 import org.apache.iotdb.confignode.consensus.request.write.DropFunctionPlan;
@@ -221,10 +222,11 @@ public class ConfigPlanExecutor {
       case DropFunction:
         return udfInfo.dropFunction((DropFunctionPlan) req);
       case CreateTrigger:
-        // TODO
+        return triggerInfo.createTrigger((CreateTriggerPlan) req);
       case DropTrigger:
       case StartTrigger:
       case StopTrigger:
+        // TODO
         return null;
       case CreateSchemaTemplate:
         return clusterSchemaInfo.createSchemaTemplate((CreateSchemaTemplatePlan) req);
@@ -362,6 +364,7 @@ public class ConfigPlanExecutor {
     allAttributes.add(partitionInfo);
     allAttributes.add(nodeInfo);
     allAttributes.add(udfInfo);
+    allAttributes.add(triggerInfo);
     return allAttributes;
   }
 }

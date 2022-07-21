@@ -216,6 +216,8 @@ public class ConfigNodeDescriptor {
 
       conf.setUdfLibDir(properties.getProperty("udf_lib_dir", conf.getUdfLibDir()));
 
+      conf.setTriggerLibDir(properties.getProperty("trigger_lib_dir", conf.getTriggerLibDir()));
+
       conf.setTemporaryLibDir(
           properties.getProperty("temporary_lib_dir", conf.getTemporaryLibDir()));
 

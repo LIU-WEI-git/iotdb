@@ -17,25 +17,22 @@
  * under the License.
  */
 
-package org.apache.iotdb.confignode.client;
+package org.apache.iotdb.commons.trigger.service;
 
-public enum DataNodeRequestType {
-  DELETE_REGIONS,
-  INVALIDATE_PARTITION_CACHE,
-  INVALIDATE_PERMISSION_CACHE,
-  INVALIDATE_SCHEMA_CACHE,
-  MIGRATE_REGION,
-  DISABLE_DATA_NODE,
-  STOP_DATA_NODE,
+public class TriggerExecutableResource {
+  private final long requestId;
+  private final String resourceDir;
 
-  SET_TTL,
-  CREATE_REGIONS,
-  CREATE_FUNCTION,
-  DROP_FUNCTION,
-  CREATE_TRIGGER,
-  DROP_TRIGGER,
-  START_TRIGGER,
-  STOP_TRIGGER,
-  FLUSH,
-  UPDATE_REGION_ROUTE_MAP
+  public TriggerExecutableResource(long requestId, String resourceDir) {
+    this.requestId = requestId;
+    this.resourceDir = resourceDir;
+  }
+
+  public long getRequestId() {
+    return requestId;
+  }
+
+  public String getResourceDir() {
+    return resourceDir;
+  }
 }

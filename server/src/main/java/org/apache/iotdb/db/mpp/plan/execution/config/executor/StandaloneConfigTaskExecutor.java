@@ -24,6 +24,7 @@ import org.apache.iotdb.common.rpc.thrift.TSStatus;
 import org.apache.iotdb.commons.exception.IoTDBException;
 import org.apache.iotdb.commons.exception.MetadataException;
 import org.apache.iotdb.commons.path.PartialPath;
+import org.apache.iotdb.commons.trigger.service.TriggerExecutableManager;
 import org.apache.iotdb.commons.udf.service.UDFExecutableManager;
 import org.apache.iotdb.commons.udf.service.UDFRegistrationService;
 import org.apache.iotdb.confignode.rpc.thrift.TStorageGroupSchema;
@@ -221,7 +222,14 @@ public class StandaloneConfigTaskExecutor implements IConfigTaskExecutor {
     SettableFuture<ConfigTaskResult> future = SettableFuture.create();
     try {
       TriggerRegistrationService.getInstance()
-          .register(triggerName, event, fullPath, className, attributes, uris);
+          .register(
+              triggerName,
+              event,
+              fullPath,
+              className,
+              attributes,
+              uris,
+              TriggerExecutableManager.getInstance());
     } catch (Exception e) {
       final String message =
           String.format(

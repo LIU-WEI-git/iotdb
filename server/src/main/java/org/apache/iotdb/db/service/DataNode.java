@@ -32,6 +32,7 @@ import org.apache.iotdb.commons.exception.StartupException;
 import org.apache.iotdb.commons.service.JMXService;
 import org.apache.iotdb.commons.service.RegisterManager;
 import org.apache.iotdb.commons.service.StartupChecks;
+import org.apache.iotdb.commons.trigger.service.TriggerExecutableManager;
 import org.apache.iotdb.commons.udf.service.UDFClassLoaderManager;
 import org.apache.iotdb.commons.udf.service.UDFExecutableManager;
 import org.apache.iotdb.commons.udf.service.UDFRegistrationService;
@@ -418,6 +419,9 @@ public class DataNode implements DataNodeMBean {
     // in mpp mode we temporarily don't start settle service because it uses StorageEngine directly
     // in itself, but currently we need to use StorageEngineV2 instead of StorageEngine in mpp mode.
     // registerManager.register(SettleService.getINSTANCE());
+    registerManager.register(
+        TriggerExecutableManager.setupAndGetInstance(
+            config.getTemporaryLibDir(), config.getTriggerDir()));
     registerManager.register(TriggerRegistrationService.getInstance());
     registerManager.register(ContinuousQueryService.getInstance());
 

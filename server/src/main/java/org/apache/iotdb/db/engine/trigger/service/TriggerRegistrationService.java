@@ -26,6 +26,9 @@ import org.apache.iotdb.commons.file.SystemFileFactory;
 import org.apache.iotdb.commons.path.PartialPath;
 import org.apache.iotdb.commons.service.IService;
 import org.apache.iotdb.commons.service.ServiceType;
+import org.apache.iotdb.commons.snapshot.SnapshotProcessor;
+import org.apache.iotdb.commons.trigger.service.TriggerExecutableManager;
+import org.apache.iotdb.commons.udf.service.SnapshotUtils;
 import org.apache.iotdb.commons.utils.TestOnly;
 import org.apache.iotdb.db.conf.IoTDBConfig;
 import org.apache.iotdb.db.conf.IoTDBDescriptor;
@@ -73,7 +76,7 @@ import static org.apache.iotdb.commons.conf.IoTDBConstant.COLUMN_TRIGGER_STATUS;
 import static org.apache.iotdb.commons.conf.IoTDBConstant.COLUMN_TRIGGER_STATUS_STARTED;
 import static org.apache.iotdb.commons.conf.IoTDBConstant.COLUMN_TRIGGER_STATUS_STOPPED;
 
-public class TriggerRegistrationService implements IService {
+public class TriggerRegistrationService implements IService, SnapshotProcessor {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TriggerRegistrationService.class);
 
@@ -111,7 +114,8 @@ public class TriggerRegistrationService implements IService {
       String fullPath,
       String className,
       Map<String, String> attributes,
-      List<String> uris)
+      List<String> uris,
+      TriggerExecutableManager executableManager)
       throws TriggerManagementException, TriggerExecutionException, IllegalPathException {
     CreateTriggerPlan plan =
         new CreateTriggerPlan(
@@ -125,6 +129,25 @@ public class TriggerRegistrationService implements IService {
     checkIfRegistered(plan, imNode);
     tryAppendRegistrationLog(plan);
     doRegister(plan, imNode);
+  }
+
+  /** invoked by config leader for validation before registration */
+  public void validate(
+      String triggerName,
+      byte event,
+      String fullPath,
+      String className,
+      Map<String, String> attributes)
+      throws IllegalPathException, TriggerManagementException {
+    CreateTriggerPlan plan =
+        new CreateTriggerPlan(
+            triggerName,
+            TriggerEvent.construct(event),
+            new PartialPath(fullPath),
+            className,
+            attributes);
+    IMNode imNode = tryGetMNode(plan);
+    checkIfRegistered(plan, imNode);
   }
 
   private void checkIfRegistered(CreateTriggerPlan plan, IMNode imNode)
@@ -525,5 +548,27 @@ public class TriggerRegistrationService implements IService {
     private static final TriggerRegistrationService INSTANCE = new TriggerRegistrationService();
 
     private TriggerRegistrationServiceHelper() {}
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // SnapshotProcessor
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+
+  @Override
+  public boolean processTakeSnapshot(File snapshotDir) throws IOException {
+    return SnapshotUtils.takeSnapshotForDir(
+        LOG_FILE_DIR, snapshotDir.getAbsolutePath() + File.separator + "trigger");
+  }
+
+  @Override
+  public void processLoadSnapshot(File snapshotDir) throws IOException {
+    SnapshotUtils.loadSnapshotForDir(
+        snapshotDir.getAbsolutePath() + File.separator + "trigger", LOG_FILE_DIR);
+
+    try {
+      doRecovery();
+    } catch (Exception e) {
+      throw new IOException(e);
+    }
   }
 }
