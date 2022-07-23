@@ -39,12 +39,11 @@ public class TriggerManagementHandler extends AbstractRetryHandler
 
   public TriggerManagementHandler(
       CountDownLatch countDownLatch,
-      TDataNodeLocation targetDataNode,
-      List<TSStatus> dataNodeResponseStatus,
       DataNodeRequestType requestType,
-      Map<Integer, TDataNodeLocation> dataNodeLocations,
-      int index) {
-    super(countDownLatch, requestType, targetDataNode, dataNodeLocations, index);
+      TDataNodeLocation targetDataNode,
+      Map<Integer, TDataNodeLocation> dataNodeLocationMap,
+      List<TSStatus> dataNodeResponseStatus) {
+    super(countDownLatch, requestType, targetDataNode, dataNodeLocationMap);
     this.dataNodeResponseStatus = dataNodeResponseStatus;
   }
 
@@ -52,7 +51,7 @@ public class TriggerManagementHandler extends AbstractRetryHandler
   public void onComplete(TSStatus response) {
     if (TSStatusCode.SUCCESS_STATUS.getStatusCode() != response.getCode()) {
       dataNodeResponseStatus.add(response);
-      dataNodeLocations.remove(index);
+      dataNodeLocationMap.remove(targetDataNode.getDataNodeId());
       LOGGER.info("Successfully {} on DataNode: {}", dataNodeRequestType, targetDataNode);
     } else {
       LOGGER.info("Failed to {} on DataNode: {}", dataNodeRequestType, targetDataNode);
