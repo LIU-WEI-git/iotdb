@@ -30,12 +30,12 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-public class UpdateRegionRouteMapHandler extends AbstractRetryHandler
+public class UpdateConfigNodeGroupHandler extends AbstractRetryHandler
     implements AsyncMethodCallback<TSStatus> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(UpdateRegionRouteMapHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(UpdateConfigNodeGroupHandler.class);
 
-  public UpdateRegionRouteMapHandler(
+  public UpdateConfigNodeGroupHandler(
       CountDownLatch countDownLatch,
       DataNodeRequestType requestType,
       TDataNodeLocation targetDataNode,
@@ -47,16 +47,20 @@ public class UpdateRegionRouteMapHandler extends AbstractRetryHandler
   public void onComplete(TSStatus status) {
     if (status.getCode() == TSStatusCode.SUCCESS_STATUS.getStatusCode()) {
       dataNodeLocationMap.remove(targetDataNode.getDataNodeId());
-      LOGGER.info("Successfully update the RegionRouteMap on DataNode: {}", targetDataNode);
+      LOGGER.info(
+          "Successfully broadCast the latest configNodeGroup on DataNode: {}", targetDataNode);
     } else {
-      LOGGER.error("Update RegionRouteMap on DataNode: {} failed", targetDataNode);
+      LOGGER.error(
+          "Failed to broadCast the latest configNodeGroup on DataNode: {}, {}",
+          targetDataNode,
+          status);
     }
     countDownLatch.countDown();
   }
 
   @Override
   public void onError(Exception e) {
-    LOGGER.error("Update RegionRouteMap on DataNode: {} failed", targetDataNode);
+    LOGGER.error("BroadCast the latest configNodeGroup on DataNode: {} failed", targetDataNode);
     countDownLatch.countDown();
   }
 }

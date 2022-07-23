@@ -118,11 +118,11 @@ public interface IManager {
   TriggerManager getTriggerManager();
 
   /**
-   * Get DataNodeRemoveManager
+   * Get ProcedureManager
    *
-   * @return DataNodeRemoveManager instance
+   * @return ProcedureManager instance
    */
-  DataNodeRemoveManager getDataNodeRemoveManager();
+  ProcedureManager getProcedureManager();
 
   /**
    * Register DataNode

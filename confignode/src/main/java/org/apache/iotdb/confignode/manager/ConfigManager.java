@@ -147,8 +147,6 @@ public class ConfigManager implements IManager {
   /** Trigger */
   private final TriggerManager triggerManager;
 
-  private final DataNodeRemoveManager dataNodeRemoveManager;
-
   public ConfigManager() throws IOException {
     // Build the persistence module
     NodeInfo nodeInfo = new NodeInfo();
@@ -180,7 +178,6 @@ public class ConfigManager implements IManager {
     this.udfManager = new UDFManager(this, udfInfo);
     this.triggerManager = new TriggerManager(this, triggerInfo);
     this.loadManager = new LoadManager(this);
-    this.dataNodeRemoveManager = new DataNodeRemoveManager(this);
     this.consensusManager = new ConsensusManager(this, stateMachine);
   }
 
@@ -188,7 +185,6 @@ public class ConfigManager implements IManager {
     consensusManager.close();
     partitionManager.getRegionCleaner().shutdown();
     procedureManager.shiftExecutor(false);
-    dataNodeRemoveManager.stop();
   }
 
   @Override
@@ -894,11 +890,6 @@ public class ConfigManager implements IManager {
   }
 
   @Override
-  public DataNodeRemoveManager getDataNodeRemoveManager() {
-    return dataNodeRemoveManager;
-  }
-
-  @Override
   public DataSet showRegion(GetRegionInfoListPlan getRegionInfoListPlan) {
     TSStatus status = confirmLeader();
     if (status.getCode() == TSStatusCode.SUCCESS_STATUS.getStatusCode()) {
@@ -967,6 +958,7 @@ public class ConfigManager implements IManager {
     return dataNodeConfigurationResp;
   }
 
+  @Override
   public ProcedureManager getProcedureManager() {
     return procedureManager;
   }
